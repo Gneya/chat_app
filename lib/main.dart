@@ -1,3 +1,5 @@
+import 'package:chat_app/helper/authenticate.dart';
+import 'package:chat_app/views/chatroomscreen.dart';
 import 'package:chat_app/views/signup.dart';
 import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
@@ -15,6 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         // theme: ThemeData(
         //   // This is the theme of your application.
@@ -28,6 +31,6 @@ class MyApp extends StatelessWidget {
         //   // is not restarted.
         //   primarySwatch: Colors.amber,
         // ),
-        home: const SignUp());
+        home: const ChatRoom());
   }
 }

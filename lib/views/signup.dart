@@ -1,8 +1,10 @@
 import 'package:chat_app/services/auth.dart';
+import 'package:chat_app/views/chatroomscreen.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+  final Function toggle;
+  const SignUp({required this.toggle});
 
   @override
   State<SignUp> createState() => _SignUp();
@@ -22,9 +24,8 @@ class _SignUp extends State<SignUp> {
           .then((value) {
         print(value);
       });
-      setState(() {
-        _isLoading = false;
-      });
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => ChatRoom()));
     }
   }
 
@@ -344,12 +345,19 @@ class _SignUp extends State<SignUp> {
                                   "Already have an account? ",
                                   style: TextStyle(color: Colors.white),
                                 ),
-                                Text(
-                                  "Sign In",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      decoration: TextDecoration.underline,
-                                      fontWeight: FontWeight.bold),
+                                GestureDetector(
+                                  onTap: () {
+                                    widget.toggle();
+                                  },
+                                  child: Container(
+                                    child: Text(
+                                      "Sign In",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          decoration: TextDecoration.underline,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
                                 ),
                               ],
                             )),

@@ -1,25 +1,20 @@
-import 'dart:ffi';
-
-import 'package:chat_app/helper/authenticate.dart';
-import 'package:chat_app/views/search.dart';
-import 'package:chat_app/views/signin.dart';
-import 'package:chat_app/views/signup.dart';
+import 'package:chat_app/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
-import '../services/auth.dart';
+import '../helper/authenticate.dart';
 
-class ChatRoom extends StatefulWidget {
-  const ChatRoom({super.key});
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
 
   @override
-  State<ChatRoom> createState() => _ChatRoomState();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _ChatRoomState extends State<ChatRoom> {
+class _SearchScreenState extends State<SearchScreen> {
   @override
-  AuthMethods authMethods = new AuthMethods();
+  AuthMethods _authMethods = new AuthMethods();
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -32,7 +27,7 @@ class _ChatRoomState extends State<ChatRoom> {
               padding: EdgeInsets.only(right: 5),
               child: IconButton(
                   onPressed: () {
-                    authMethods.SignOut();
+                    _authMethods.SignOut();
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -50,23 +45,25 @@ class _ChatRoomState extends State<ChatRoom> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Icon(Icons.search),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: <Color>[Colors.orange, Colors.pink]),
-            borderRadius: BorderRadius.all(Radius.circular(30)),
-          ),
+      body: Container(
+        color: Colors.white10,
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                      child: TextField(
+                          //decoration: Input,
+                          )),
+                  Icon(Icons.search)
+                ],
+              ),
+            )
+          ],
         ),
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SearchScreen()));
-        },
       ),
     );
   }
