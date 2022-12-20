@@ -1,7 +1,9 @@
 import 'package:chat_app/services/auth.dart';
+import 'package:chat_app/services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
+//import 'package:flutter/src/widgets/container.dart';
+//import 'package:flutter/src/widgets/framework.dart';
 
 import '../helper/authenticate.dart';
 
@@ -15,6 +17,35 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   @override
   AuthMethods _authMethods = new AuthMethods();
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+  QuerySnapshot<Map<String, dynamic>>? searchSnapshot;
+  TextEditingController searchTextEditingController =
+      new TextEditingController();
+  initiateSeach() {
+    databaseMethods
+        .getUserByUsername(searchTextEditingController.text)
+        .then((val) {
+      setState(() {
+        searchSnapshot = val;
+      });
+    });
+  }
+
+  Widget searchList() {
+    return searchSnapshot != null
+        ? ListView.builder(
+            shrinkWrap: true,
+            itemCount: searchSnapshot!.docs.length,
+            itemBuilder: (context, index) {
+              return SearchTile(
+                  username: searchSnapshot!.docs[index].get("name"),
+                  useremail: searchSnapshot!.docs[index].get("email"));
+            })
+        : Container(
+            height: 10,
+          );
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -46,25 +77,95 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
       body: Container(
-        color: Colors.white10,
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              height: MediaQuery.of(context).size.height / 15,
+              margin: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade400.withOpacity(0.3),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              padding: EdgeInsets.all(10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
+                  Container(
+                      margin: EdgeInsets.only(left: 15, top: 13),
+                      width: 250,
                       child: TextField(
-                          //decoration: Input,
-                          )),
-                  Icon(Icons.search)
+                          controller: searchTextEditingController,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                              // enabledBorder: OutlineInputBorder(),
+                              border: InputBorder.none,
+                              hintText: "Search username..",
+                              hintStyle: TextStyle(color: Colors.black)))),
+                  IconButton(
+                    padding: EdgeInsets.only(bottom: 0),
+                    icon: Icon(Icons.search),
+                    onPressed: () {
+                      initiateSeach();
+                    },
+                  ),
                 ],
               ),
-            )
+            ),
+            searchList()
           ],
         ),
       ),
+    );
+  }
+}
+
+class SearchTile extends StatelessWidget {
+  final String username;
+  final String useremail;
+  SearchTile({required this.username, required this.useremail});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Row(children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              username,
+              style: TextStyle(fontSize: 15),
+            ),
+            Text(
+              useremail,
+              style: TextStyle(fontSize: 15),
+            ),
+          ],
+        ),
+        Spacer(),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [
+                0.1,
+                0.6,
+              ],
+              colors: [
+                Colors.orange.withOpacity(0.7),
+                Colors.pinkAccent,
+              ],
+            ),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            "Message",
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
+          ),
+        )
+      ]),
     );
   }
 }
