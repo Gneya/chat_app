@@ -1,3 +1,8 @@
+import 'package:chat_app/helper/helperfunction.dart';
+import 'package:chat_app/services/auth.dart';
+import 'package:chat_app/services/database.dart';
+import 'package:chat_app/views/chatroomscreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
@@ -11,6 +16,41 @@ class SignIn extends StatefulWidget {
 class _SignIn extends State<SignIn> {
   @override
   final _formKey = GlobalKey<FormState>();
+  AuthMethods authMethods = new AuthMethods();
+  TextEditingController emailTextEditingController =
+      new TextEditingController();
+  TextEditingController passwordTextEditingController =
+      new TextEditingController();
+  QuerySnapshot<Map<String, dynamic>>? snapshotUserInfo;
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+  bool isLoading = false;
+  signIn() {
+    if (_formKey.currentState!.validate()) {
+      HelperFunctions.saveUserEmailSharedPreference(
+          emailTextEditingController.text);
+      setState(() {
+        isLoading = true;
+      });
+      databaseMethods
+          .getUserByEmail(emailTextEditingController.text)
+          .then((val) {
+        snapshotUserInfo = val;
+        HelperFunctions.saveUserNameSharedPreference(
+            snapshotUserInfo!.docs[0].get("name"));
+      });
+      HelperFunctions.saveuserLoggedInSharedPreference(true);
+      authMethods.SignInWithEmailandPassword(emailTextEditingController.text,
+              passwordTextEditingController.text)
+          .then((value) => () {
+                if (value != null) {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => ChatRoom()));
+                }
+              });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     MediaQueryData queryData = MediaQuery.of(context);
     return Scaffold(
@@ -64,6 +104,14 @@ class _SignIn extends State<SignIn> {
                   Container(
                     padding: EdgeInsets.only(left: 20, right: 20),
                     child: TextFormField(
+                      validator: (val) {
+                        return RegExp(
+                                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                .hasMatch(val!)
+                            ? null
+                            : "Enter valid Email-ID!!!!";
+                      },
+                      controller: emailTextEditingController,
                       style: TextStyle(color: Colors.white),
                       cursorColor: Colors.white,
                       decoration: InputDecoration(
@@ -110,6 +158,13 @@ class _SignIn extends State<SignIn> {
                   Container(
                     padding: EdgeInsets.only(left: 20, right: 20),
                     child: TextFormField(
+                      obscureText: true,
+                      validator: (val) {
+                        return val!.isEmpty || val.length < 6
+                            ? "Password must be alteast 6 characters!!!!"
+                            : null;
+                      },
+                      controller: passwordTextEditingController,
                       cursorColor: Colors.white,
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
@@ -212,6 +267,7 @@ class _SignIn extends State<SignIn> {
                           ),
                           GestureDetector(
                             onTap: () {
+                              signIn();
                               widget.toggle();
                             },
                             child: Container(

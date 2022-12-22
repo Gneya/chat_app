@@ -1,5 +1,7 @@
+import 'package:chat_app/helper/contants.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/views/conversationscreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter/src/widgets/container.dart';
@@ -44,6 +46,19 @@ class _SearchScreenState extends State<SearchScreen> {
         : Container(
             height: 10,
           );
+  }
+
+  //create chatroom, send user to conversation screen, pushreplacement
+  createChatRoomandStartConversation(String username) {
+    String chatRoomId = getChatRoomId(username, Constant.myname);
+    List<String> users = [username, Constant.myname];
+    Map<String, dynamic> chatRoomMap = {
+      "users": users,
+      "chatroomid": chatRoomId
+    };
+    databaseMethods.createChatRoom(chatRoomId, chatRoomMap);
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => ConversationScreen()));
   }
 
   Widget build(BuildContext context) {
@@ -142,30 +157,43 @@ class SearchTile extends StatelessWidget {
           ],
         ),
         Spacer(),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [
-                0.1,
-                0.6,
-              ],
-              colors: [
-                Colors.orange.withOpacity(0.7),
-                Colors.pinkAccent,
-              ],
+        GestureDetector(
+          onTap: () {},
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [
+                  0.1,
+                  0.6,
+                ],
+                colors: [
+                  Colors.orange.withOpacity(0.7),
+                  Colors.pinkAccent,
+                ],
+              ),
             ),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            "Message",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              "Message",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: Colors.black),
+            ),
           ),
         )
       ]),
     );
+  }
+}
+
+getChatRoomId(String a, String b) {
+  if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+    return "$b\_$a";
+  } else {
+    return "$a\_$b";
   }
 }

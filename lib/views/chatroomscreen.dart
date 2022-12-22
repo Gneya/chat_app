@@ -1,6 +1,8 @@
 import 'dart:ffi';
 
 import 'package:chat_app/helper/authenticate.dart';
+import 'package:chat_app/helper/contants.dart';
+import 'package:chat_app/helper/helperfunction.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/views/signup.dart';
@@ -20,6 +22,17 @@ class ChatRoom extends StatefulWidget {
 class _ChatRoomState extends State<ChatRoom> {
   @override
   AuthMethods authMethods = new AuthMethods();
+  @override
+  void initState() {
+    getUserInfo();
+    // TODO: implement initState
+    super.initState();
+  }
+
+  getUserInfo() async {
+    Constant.myname = (await HelperFunctions.getUserNameSharedPreference())!;
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
