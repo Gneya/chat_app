@@ -26,7 +26,13 @@ class _ChatRoomState extends State<ChatRoom> {
   void initState() {
     getUserInfo();
     // TODO: implement initState
+    signout();
     super.initState();
+  }
+
+  signout() {
+    HelperFunctions.saveuserLoggedInSharedPreference(false);
+    authMethods.SignOut();
   }
 
   getUserInfo() async {

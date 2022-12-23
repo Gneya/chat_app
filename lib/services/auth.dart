@@ -12,6 +12,7 @@ class AuthMethods {
       UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
       User? firebaseUser = result.user;
+      print("User Signed in");
       return _userFromFirebase(firebaseUser!);
     } catch (e) {
       print(e);
