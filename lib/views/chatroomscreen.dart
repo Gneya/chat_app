@@ -23,20 +23,15 @@ class _ChatRoomState extends State<ChatRoom> {
   @override
   AuthMethods authMethods = new AuthMethods();
   @override
-  void initState() {
-    getUserInfo();
-    // TODO: implement initState
-    signout();
-    super.initState();
-  }
-
-  signout() {
-    HelperFunctions.saveuserLoggedInSharedPreference(false);
-    authMethods.SignOut();
-  }
-
   getUserInfo() async {
     Constant.myname = (await HelperFunctions.getUserNameSharedPreference())!;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getUserInfo();
+    super.initState();
   }
 
   Widget build(BuildContext context) {

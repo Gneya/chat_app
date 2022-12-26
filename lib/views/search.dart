@@ -15,7 +15,6 @@ class SearchScreen extends StatefulWidget {
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
-//create chatroom, send user to conversation screen, pushreplacement
 
 class _SearchScreenState extends State<SearchScreen> {
   @override
@@ -36,7 +35,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   createChatRoomandStartConversation({required String username}) {
     if (username != Constant.myname) {
+      print(username);
+      print(Constant.myname);
       String? chatRoomId = getChatRoomId(username, Constant.myname!);
+      print(chatRoomId);
       List<String?> users = [username, Constant.myname];
       Map<String, dynamic> chatRoomMap = {
         "users": users,

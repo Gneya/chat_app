@@ -30,6 +30,8 @@ class _MyAppState extends State<MyApp> {
     await HelperFunctions.getuserLoggedInSharedPreference().then((value) => {
           setState(() {
             userLoggedIn = value;
+            //Contant.myName=
+            print(HelperFunctions.getUserNameSharedPreference());
           })
         });
   }
