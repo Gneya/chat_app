@@ -1,20 +1,86 @@
 import 'package:chat_app/helper/authenticate.dart';
+import 'package:chat_app/helper/contants.dart';
 import 'package:chat_app/services/auth.dart';
+import 'package:chat_app/services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class ConversationScreen extends StatefulWidget {
-  const ConversationScreen({super.key});
+  final String username;
+  final String ChatRoomId;
+  const ConversationScreen({
+    required this.username,
+    required this.ChatRoomId,
+  });
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
-  // Widget ChatMessageList() {
-  //   return
-  // }
+  TextEditingController messageController = new TextEditingController();
+  final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance
+      .collection("ChatRoom")
+      .doc(Constant.chatRoomId)
+      .collection("chats")
+      .snapshots();
+
+  DatabaseMethods _databaseMethods = new DatabaseMethods();
+  Widget ChatMessageList() {
+    return StreamBuilder(
+
+        //  stream: chatMessageStream,
+        stream: _usersStream,
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (ctx, index) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text("Loading");
+                }
+
+                QuerySnapshot<Object?>? snap = snapshot.data; // Snapshot
+                List<DocumentSnapshot> items = snap!.docs; // List of Documents
+                DocumentSnapshot item = items[index];
+                return MessageTile(
+                  message: item['message'],
+                );
+              });
+        });
+  }
+
+  sendMessage() {
+    if (messageController.text.isNotEmpty) {
+      Map<String, String> messageMap = {
+        "message": messageController.text,
+        "sendBy": Constant.myname
+      };
+      _databaseMethods.addConversationMessage(widget.ChatRoomId, messageMap);
+      messageController.text = "";
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    // print("Inside");
+    // setState(() {
+    //   chatMessageStream =
+    //       _databaseMethods.getConversationMessage(widget.ChatRoomId);
+    // });
+    // print(chatMessageStream);
+
+    //.then((value) {
+    //   print(value);
+    //   setState(() {
+    //     chatMessageStream = value;
+    //   });
+    // });
+    super.initState();
+  }
+
   @override
   AuthMethods _authMethods = new AuthMethods();
   Widget build(BuildContext context) {
@@ -37,7 +103,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   },
                   icon: Icon(Icons.exit_to_app)))
         ],
-        title: Text("Chats", style: TextStyle(fontSize: 25)),
+        title: Text(widget.username, style: TextStyle(fontSize: 22)),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -50,6 +116,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
       body: Container(
           child: Stack(
         children: [
+          Container(
+            child: ChatMessageList(),
+          ),
           Container(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -66,7 +135,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       margin: EdgeInsets.only(left: 15, top: 13),
                       width: 250,
                       child: TextField(
-                          //controller: searchTextEditingController,
+                          controller: messageController,
                           cursorColor: Colors.black,
                           decoration: InputDecoration(
                               // enabledBorder: OutlineInputBorder(),
@@ -77,6 +146,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     padding: EdgeInsets.only(bottom: 0),
                     icon: Icon(Icons.send),
                     onPressed: () {
+                      sendMessage();
                       //  initiateSeach();
                     },
                   ),
@@ -86,6 +156,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ),
         ],
       )),
+    );
+  }
+}
+
+class MessageTile extends StatelessWidget {
+  final String message;
+  const MessageTile({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text(message),
     );
   }
 }

@@ -45,8 +45,14 @@ class _SearchScreenState extends State<SearchScreen> {
         "chatroomid": chatRoomId
       };
       DatabaseMethods().createChatRoom(chatRoomId!, chatRoomMap);
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ConversationScreen()));
+      Constant.chatRoomId = chatRoomId;
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ConversationScreen(
+                    username: username,
+                    ChatRoomId: chatRoomId,
+                  )));
     } else {
       print("You cannot text yourself");
     }
