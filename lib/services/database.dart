@@ -47,4 +47,11 @@ class DatabaseMethods {
         .collection("chats")
         .snapshots();
   }
+
+  getChatRooms(String username) {
+    return FirebaseFirestore.instance
+        .collection("ChatRoom")
+        .where("users", arrayContains: username)
+        .snapshots();
+  }
 }

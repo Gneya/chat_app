@@ -60,7 +60,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget SearchTile({required useremail, required username}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.only(left: 5),
+      // padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ],
         ),
-        Spacer(),
+        //  Spacer(),
         GestureDetector(
           onTap: () {
             createChatRoomandStartConversation(username: username);
@@ -189,7 +191,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-            searchList()
+            Container(
+                width: MediaQuery.of(context).size.width, child: searchList())
           ],
         ),
       ),

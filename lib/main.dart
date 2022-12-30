@@ -1,5 +1,6 @@
 import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/helperfunction.dart';
+import 'package:chat_app/views/Temp.dart';
 import 'package:chat_app/views/chatroomscreen.dart';
 import 'package:chat_app/views/signup.dart';
 import 'package:flutter/material.dart';
@@ -56,9 +57,9 @@ class _MyAppState extends State<MyApp> {
       // ),
       home: userLoggedIn != null
           ? userLoggedIn == true
-              ? ChatRoom()
+              ? Temp()
               : Authenticate()
-          : Blank(),
+          : Authenticate(),
     );
   }
 }
