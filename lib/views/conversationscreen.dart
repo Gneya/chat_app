@@ -24,6 +24,7 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
+  var isloading = false;
   var type = "text";
   File? image;
   firebase_storage.FirebaseStorage storage =
@@ -197,81 +198,106 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                       topRight: Radius.circular(30))),
                               context: context,
                               builder: (BuildContext context) {
-                                return Container(
-                                  height:
-                                      MediaQuery.of(context).size.height / 1.2,
-                                  // color: Colors.white,
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              2.5,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              1.5,
-                                          child: Image.file(
-                                            image!.absolute,
+                                return isloading
+                                    ? CircularProgressIndicator(
+                                        color: Colors.orange,
+                                      )
+                                    : Container(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                1.2,
+                                        // color: Colors.white,
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Container(
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    2.5,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    1.5,
+                                                child: Image.file(
+                                                  image!.absolute,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Container(
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                    // gradient: LinearGradient(
+                                                    //     begin: Alignment.topCenter,
+                                                    //     end: Alignment.bottomRight,
+                                                    //     colors: <Color>[
+                                                    //       Colors.orange,
+                                                    //       Colors.pink
+                                                    //     ]),
+                                                    color: Colors.orangeAccent),
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    1.5,
+                                                child: ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                            backgroundColor:
+                                                                Color.fromARGB(
+                                                                    181,
+                                                                    255,
+                                                                    153,
+                                                                    0)),
+                                                    child: isloading
+                                                        ? CircularProgressIndicator(
+                                                            color: Colors.white,
+                                                          )
+                                                        : Text('Send'),
+                                                    onPressed: () async {
+                                                      setState(() {
+                                                        isloading = true;
+                                                      });
+                                                      firebase_storage.Reference
+                                                          ref = firebase_storage
+                                                              .FirebaseStorage
+                                                              .instance
+                                                              .ref('/foldername' +
+                                                                  DateTime.now()
+                                                                      .millisecondsSinceEpoch
+                                                                      .toString());
+                                                      firebase_storage
+                                                              .UploadTask
+                                                          uploadTask =
+                                                          ref.putFile(
+                                                              image!.absolute);
+                                                      await Future.value(
+                                                          uploadTask);
+                                                      var newUrl = await ref
+                                                          .getDownloadURL();
+                                                      messageController.text =
+                                                          newUrl;
+                                                      type = "image";
+                                                      setState(() {
+                                                        isloading = false;
+                                                      });
+                                                      sendMessage();
+                                                      Navigator.pop(context);
+                                                    }),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(
-                                          height: 5,
-                                        ),
-                                        Container(
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                              // gradient: LinearGradient(
-                                              //     begin: Alignment.topCenter,
-                                              //     end: Alignment.bottomRight,
-                                              //     colors: <Color>[
-                                              //       Colors.orange,
-                                              //       Colors.pink
-                                              //     ]),
-                                              color: Colors.orangeAccent),
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              1.5,
-                                          child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Color.fromARGB(
-                                                          181, 255, 153, 0)),
-                                              child: const Text('Send'),
-                                              onPressed: () async {
-                                                firebase_storage.Reference ref =
-                                                    firebase_storage
-                                                        .FirebaseStorage
-                                                        .instance
-                                                        .ref('/foldername' +
-                                                            '1224');
-                                                firebase_storage.UploadTask
-                                                    uploadTask = ref.putFile(
-                                                        image!.absolute);
-                                                await Future.value(uploadTask);
-                                                var newUrl =
-                                                    await ref.getDownloadURL();
-                                                messageController.text = newUrl;
-                                                type = "image";
-                                                sendMessage();
-                                                Navigator.pop(context);
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
+                                      );
                               },
                             )
                           });
 
-                      //sendMessage();
+                      //'sed'();
                       //  initiateSeach();
                     },
                   ),
