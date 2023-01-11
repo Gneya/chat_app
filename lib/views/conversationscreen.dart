@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/contants.dart';
 import 'package:chat_app/services/auth.dart';
@@ -6,6 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class ConversationScreen extends StatefulWidget {
   final String username;
@@ -20,6 +24,23 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
+  var type = "text";
+  File? image;
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
+  final picker = ImagePicker();
+  Future getImage() async {
+    final pickedfile =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    setState(() {
+      if (pickedfile != null) {
+        image = File(pickedfile.path);
+      } else {
+        print("No image picked");
+      }
+    });
+  }
+
   bool isLoading = false;
   TextEditingController messageController = new TextEditingController();
   final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance
@@ -54,6 +75,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     DocumentSnapshot item = items[index];
                     return MessageTile(
                       message: item['message'],
+                      type: item['type'],
                       sendByMe:
                           item['sendBy'] == Constant.myname ? true : false,
                     );
@@ -68,6 +90,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       Map<String, dynamic> messageMap = {
         "message": messageController.text,
         "sendBy": Constant.myname,
+        "type": type,
         "time": DateTime.now().millisecondsSinceEpoch
       };
       _databaseMethods.addConversationMessage(widget.ChatRoomId, messageMap);
@@ -147,13 +170,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 color: Colors.grey.shade400.withOpacity(0.3),
                 //borderRadius: BorderRadius.all(Radius.circular(10))
               ),
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
                       margin: EdgeInsets.only(left: 15, top: 13),
-                      width: 250,
+                      width: 200,
                       child: TextField(
                           controller: messageController,
                           cursorColor: Colors.black,
@@ -164,8 +187,99 @@ class _ConversationScreenState extends State<ConversationScreen> {
                               hintStyle: TextStyle(color: Colors.black)))),
                   IconButton(
                     padding: EdgeInsets.only(bottom: 0),
+                    icon: Icon(Icons.image),
+                    onPressed: () {
+                      getImage().then((value) => {
+                            showModalBottomSheet<void>(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(30),
+                                      topRight: Radius.circular(30))),
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  height:
+                                      MediaQuery.of(context).size.height / 1.2,
+                                  // color: Colors.white,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Container(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              2.5,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              1.5,
+                                          child: Image.file(
+                                            image!.absolute,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Container(
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                              // gradient: LinearGradient(
+                                              //     begin: Alignment.topCenter,
+                                              //     end: Alignment.bottomRight,
+                                              //     colors: <Color>[
+                                              //       Colors.orange,
+                                              //       Colors.pink
+                                              //     ]),
+                                              color: Colors.orangeAccent),
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              1.5,
+                                          child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Color.fromARGB(
+                                                          181, 255, 153, 0)),
+                                              child: const Text('Send'),
+                                              onPressed: () async {
+                                                firebase_storage.Reference ref =
+                                                    firebase_storage
+                                                        .FirebaseStorage
+                                                        .instance
+                                                        .ref('/foldername' +
+                                                            '1224');
+                                                firebase_storage.UploadTask
+                                                    uploadTask = ref.putFile(
+                                                        image!.absolute);
+                                                await Future.value(uploadTask);
+                                                var newUrl =
+                                                    await ref.getDownloadURL();
+                                                messageController.text = newUrl;
+                                                type = "image";
+                                                sendMessage();
+                                                Navigator.pop(context);
+                                              }),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          });
+
+                      //sendMessage();
+                      //  initiateSeach();
+                    },
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.only(bottom: 0),
                     icon: Icon(Icons.send),
                     onPressed: () {
+                      type = "text";
                       sendMessage();
                       //  initiateSeach();
                     },
@@ -183,7 +297,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
 class MessageTile extends StatelessWidget {
   final String message;
   final bool sendByMe;
-  const MessageTile({required this.message, required this.sendByMe});
+  final String type;
+  const MessageTile(
+      {required this.message, required this.type, required this.sendByMe});
 
   @override
   Widget build(BuildContext context) {
@@ -238,12 +354,48 @@ class MessageTile extends StatelessWidget {
             ),
             padding: EdgeInsets.all(15),
             margin: EdgeInsets.all(2),
-            child: Text(
-              message,
-              style: TextStyle(color: sendByMe ? Colors.white : Colors.black),
-            ),
+            child: type == "image"
+                ? GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return DetailScreen(
+                          message: message,
+                        );
+                      }));
+                    },
+                    child: Container(
+                        height: 150, width: 150, child: Image.network(message)),
+                  )
+                : Text(
+                    message,
+                    style: TextStyle(
+                        color: sendByMe ? Colors.white : Colors.black),
+                  ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DetailScreen extends StatelessWidget {
+  final String message;
+  DetailScreen({required this.message});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GestureDetector(
+        child: Center(
+          child: Hero(
+            tag: 'Hero',
+            child: Image.network(
+              message,
+            ),
+          ),
+        ),
+        onTap: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }

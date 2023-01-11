@@ -1,6 +1,7 @@
 import 'package:chat_app/helper/helperfunction.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/views/Temp.dart';
 import 'package:chat_app/views/chatroomscreen.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +40,7 @@ class _SignUp extends State<SignUp> {
       databaseMethods.uploadUserUserInfo(userInfoMap);
       HelperFunctions.saveuserLoggedInSharedPreference(true);
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => ChatRoom()));
+          context, MaterialPageRoute(builder: (context) => Temp()));
     }
   }
 
@@ -244,6 +245,7 @@ class _SignUp extends State<SignUp> {
                         Container(
                           padding: EdgeInsets.only(left: 20, right: 20),
                           child: TextFormField(
+                            obscureText: true,
                             validator: (val) {
                               return val!.isEmpty || val.length < 6
                                   ? "Password must be alteast 6 characters!!!!"

@@ -145,19 +145,34 @@ class MessageTile extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [
-                0.1,
-                0.6,
-              ],
-              colors: [
-                Colors.orange.withOpacity(0.1),
-                Colors.pinkAccent.withOpacity(0.1),
-              ],
-            ),
+            color: Colors.white,
+            //borderRadius: BorderRadius.circular(30), //border corner radius
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5), //color of shadow
+                spreadRadius: 5, //spread radius
+                blurRadius: 25, // blur radius
+                offset: Offset(0, 2), // changes position of shadow
+                //first paramerter of offset is left-right
+                //second parameter is top to down
+              ),
+              //you can set more BoxShadow() here
+            ],
           ),
+          //decoration: BoxDecoration(
+          //   gradient: LinearGradient(
+          //     begin: Alignment.topCenter,
+          //     end: Alignment.bottomCenter,
+          //     stops: [
+          //       0.1,
+          //       0.6,
+          //     ],
+          //     colors: [
+          //       Colors.orange.withOpacity(0.1),
+          //       Colors.pinkAccent.withOpacity(0.1),
+          //     ],
+          //   ),
+          // ),
           child: InkWell(
             onTap: () {
               Constant.chatRoomId = chatroomid;
